@@ -2,7 +2,7 @@
 基于Rxjava2.x的串口通信library 
 ## 使用方法
 
-打开并监听串口，只要串口有数据就会回调，如果要关闭串口需要手动关闭
+打开并监听串口，accept方法会一直保持回调，直到手动关闭串口
 
         try {
             SerialPortListener.statListen("/dev/ttyS3", 9600, 0)
