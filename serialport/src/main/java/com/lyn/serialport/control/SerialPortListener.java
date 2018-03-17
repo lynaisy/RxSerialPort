@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -16,11 +17,12 @@ import io.reactivex.ObservableOnSubscribe;
  */
 
 public class SerialPortListener {
-    private static Map<String, Boolean> mapIsListening = new HashMap<>();
-    private static Map<String, SerialPort> mapSerialPort = new HashMap<>();
+    private static Map<String, Boolean> mapIsListening = new ConcurrentHashMap<>();
+    private static Map<String, SerialPort> mapSerialPort = new ConcurrentHashMap<>();
 
     /**
      * 打开串口并开始监听
+     *
      * @param serialPortFileName 串口名
      * @param baudrate
      * @param flags
@@ -59,12 +61,24 @@ public class SerialPortListener {
         });
     }
 
-    public void stop(String serialPortFileName) {
+    /**
+     * 关闭一个串口的读写
+     *
+     * @param serialPortFileName
+     */
+    public static void stop(String serialPortFileName) {
+        mapSerialPort.get(serialPortFileName).close();
         mapIsListening.remove(serialPortFileName);
         mapSerialPort.remove(serialPortFileName);
     }
 
-    public void stopAll() {
+    /**
+     * 关闭所有串口的读写
+     */
+    public static void stopAll() {
+        for (String serialPortFileName : mapSerialPort.keySet()) {
+            mapSerialPort.get(serialPortFileName).close();
+        }
         mapIsListening.clear();
         mapSerialPort.clear();
     }
